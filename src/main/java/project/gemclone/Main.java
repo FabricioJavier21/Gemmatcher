@@ -6,21 +6,23 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import controller.GameController;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        BorderPane root = new BorderPane();
-        Scene scene = new Scene(root, 600, 600);
+    public void start(Stage stage) {
+        GameController controller = new GameController();
+        Scene scene = new Scene(controller.getRoot(), 600, 650);
 
-        primaryStage.setTitle("GemMatcherrrrr");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        stage.setTitle("GemMatcher");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
 
