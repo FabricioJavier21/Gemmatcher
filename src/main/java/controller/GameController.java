@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import model.Board;
@@ -13,8 +14,8 @@ import model.Gem;
 import database.DatabaseManager;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
-
 import java.util.Optional;
+import ui.ScoreBoard;
 
 public class GameController {
 
@@ -45,28 +46,29 @@ public class GameController {
 
         for (int r = 0; r < ROWS; r++) {
             for (int c = 0; c < COLS; c++) {
-                StackPane cell = createGemCell(r, c);
+                StackPane cell = createGem(r, c);
                 grid.add(cell, c, r);
             }
         }
     }
 
-    private StackPane createGemCell(int row, int col) {
+    private StackPane createGem(int row, int col) {
         Gem gem = board.getGem(row, col);
 
         ImageView imageView = new ImageView(gem.getImage());
-        imageView.setFitWidth(TILE_SIZE - 10);
-        imageView.setFitHeight(TILE_SIZE - 10);
-        imageView.setPreserveRatio(true);
+        imageView.setFitWidth(TILE_SIZE-5);
+        imageView.setFitHeight(TILE_SIZE-5);
+        //imageView.setPreserveRatio(true);
 
         StackPane cell = new StackPane(imageView);
-        cell.setMinSize(TILE_SIZE, TILE_SIZE);
+        cell.setMinSize(TILE_SIZE+5, TILE_SIZE+5);
         cell.setAlignment(Pos.CENTER);
 
         boolean isSelected = (row == selectedRow && col == selectedCol);
         cell.setStyle(
-                "-fx-border-color: black;" +
-                        "-fx-background-color: " + (isSelected ? "gold" : "lightgray") + ";"
+                "-fx-border-color: #c5aa74;" +
+                        "-fx-background-color: " +
+                        (isSelected ? "#d80e0e" : "#2476c6") + ";"
         );
 
         cell.setOnMouseClicked(e -> handleClick(row, col));
@@ -84,12 +86,12 @@ public class GameController {
         if (board.isAdjacent(selectedRow, selectedCol, row, col)) {
             board.swap(selectedRow, selectedCol, row, col);
 
-            // Optional: only keep swap if it creates a match
+            //Keep swap if it creates a match
             var matches = board.findMatches();
             if (matches.isEmpty()) {
                 board.swap(selectedRow, selectedCol, row, col); // swap back
             } else {
-                processBoard(); // clears, collapses, scores
+                processBoard();
             }
         }
 
@@ -108,15 +110,13 @@ public class GameController {
                 score += matches.size() * 10;
                 scoreLabel.setText("Score: " + score);
 
-                board.removeMatches(matches);
-                board.collapse();
+                board.replaceMatchesWithRandom(matches);
             }
         } while (foundMatch);
+
+        drawBoard();
     }
 
-    public int getScore() {
-        return score;
-    }
 
     public Parent getRoot() {
         BorderPane root = new BorderPane();
@@ -126,11 +126,17 @@ public class GameController {
 
         Button saveBtn = new Button("Save Score");
         saveBtn.setOnAction(e -> saveScoreToDb());
-        BorderPane.setAlignment(saveBtn, Pos.CENTER);
-        root.setBottom(saveBtn);
 
+        Button scoresBtn = new Button("High Scores");
+        scoresBtn.setOnAction(e -> new ScoreBoard().show());
+
+        HBox bottom = new HBox(10, saveBtn, scoresBtn);
+        bottom.setAlignment(Pos.CENTER);
+
+        root.setBottom(bottom);
         return root;
     }
+
 
     private void saveScoreToDb() {
         TextInputDialog dialog = new TextInputDialog();

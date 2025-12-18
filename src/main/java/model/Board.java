@@ -43,7 +43,7 @@ public class Board {
     public Set<int[]> findMatches() {
         Set<int[]> matches = new HashSet<>();
 
-        // Horizontal
+        // Horizontal match
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols - 2; c++) {
                 GemType t = grid[r][c].getType();
@@ -57,7 +57,7 @@ public class Board {
             }
         }
 
-        // Vertical
+        // Vertical match
         for (int c = 0; c < cols; c++) {
             for (int r = 0; r < rows - 2; r++) {
                 GemType t = grid[r][c].getType();
@@ -73,27 +73,11 @@ public class Board {
 
         return matches;
     }
-
-    public void removeMatches(Set<int[]> matches) {
+    public void replaceMatchesWithRandom(Set<int[]> matches) {
+        GemType[] types = GemType.values();
         for (int[] pos : matches) {
-            grid[pos[0]][pos[1]] = null;
-        }
-    }
-
-    public void collapse() {
-        for (int c = 0; c < cols; c++) {
-            int writeRow = rows - 1;
-            for (int r = rows - 1; r >= 0; r--) {
-                if (grid[r][c] != null) {
-                    grid[writeRow][c] = grid[r][c];
-                    writeRow--;
-                }
-            }
-            while (writeRow >= 0) {
-                grid[writeRow][c] =
-                        new Gem(GemType.values()[random.nextInt(GemType.values().length)]);
-                writeRow--;
-            }
+            int r = pos[0], c = pos[1];
+            grid[r][c] = new Gem(types[random.nextInt(types.length)]);
         }
     }
 }
